@@ -70,20 +70,18 @@ public class Gui {
                     repositoriesMI.add(repoSM);
                 });
 
-        Pattern pattern = Pattern.compile("\\([0-9].*\\) [a-zA-Z0-9].*");
-
         int counter = 0;
 
-        for (int i = 0; i < repositoriesMI.getItemCount(); i++) {
+        for (int i = 0; i < repos.size(); i++) {
             MenuItem item = repositoriesMI.getItem(i);
-            Matcher matcher = pattern.matcher(item.getLabel());
 
-            if (matcher.find()) {
+            if (repos.get(i).getPrs().size() > 0) {
                 repositoriesMI.remove(item);
                 repositoriesMI.insert(item, counter);
                 counter++;
             }
         }
+
         repositoriesMI.insertSeparator(counter);
         popup.add(accountMI);
         popup.addSeparator();
