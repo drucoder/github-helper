@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Gui {
     private final TrayIcon trayIcon;
@@ -40,6 +44,7 @@ public class Gui {
                     String name = repo.getPrs().size() > 0
                             ? String.format("(%d) %s", repo.getPrs().size(), repo.getName())
                             : repo.getName();
+
                     Menu repoSM = new Menu(name);
 
                     MenuItem openInBrowser = new MenuItem("Open in browser");
@@ -64,6 +69,21 @@ public class Gui {
 
                     repositoriesMI.add(repoSM);
                 });
+
+        Pattern pattern = Pattern.compile("\\([0-9].*\\) [a-zA-Z0-9].*");
+
+        int counter = 0;
+
+        for (int i = 0; i < repositoriesMI.getItemCount(); i++) {
+            MenuItem item = repositoriesMI.getItem(i);
+            Matcher matcher = pattern.matcher(item.getLabel());
+
+            if (matcher.find()) {
+                repositoriesMI.remove(item);
+                repositoriesMI.insert(item, counter);
+                counter++;
+            }
+        }
 
         popup.add(accountMI);
         popup.addSeparator();
