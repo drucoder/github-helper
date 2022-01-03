@@ -84,7 +84,7 @@ public class Gui {
                 counter++;
             }
         }
-
+        repositoriesMI.insertSeparator(counter);
         popup.add(accountMI);
         popup.addSeparator();
         popup.add(notificationMI);
