@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.*;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Gui {
     private final TrayIcon trayIcon;
@@ -35,33 +38,28 @@ public class Gui {
         notificationMI.addActionListener(e -> openInBrowser("https://github.com/notifications"));
 
         Menu repositoriesMI = new Menu("repositories");
-        repos
-                .forEach(repo -> {
-                    String name = repo.getPrs().size() > 0
-                            ? String.format("(%d) %s", repo.getPrs().size(), repo.getName())
-                            : repo.getName();
-                    Menu repoSM = new Menu(name);
+        List<RepositoryDescrtiption> repositoriesWithPRs = new ArrayList<>();
+        List<RepositoryDescrtiption> repositoriesWithoutPRs = new ArrayList<>();
 
-                    MenuItem openInBrowser = new MenuItem("Open in browser");
-                    openInBrowser.addActionListener(e ->
-                            openInBrowser(repo.getRepository().getHtmlUrl().toString())
-                    );
+        for (var repo : repos) {
+            if (repo.getPrs().size() == 0) {
+                repositoriesWithoutPRs.add(repo);
+            } else {
+                repositoriesWithPRs.add(repo);
+            }
+        }
 
-                    repoSM.add(openInBrowser);
+        repositoriesWithPRs.forEach(
+                repo -> {
+                    Menu repoSM = new Menu(String.format("(%d) %s", repo.getPrs().size(), repo.getName()));
+                    repositoriesMI.add(repoSM);
+                });
 
-                    if (repo.getPrs().size() > 0) {
-                        repoSM.addSeparator();
-                    }
+        repositoriesMI.addSeparator();
 
-                    repo.getPrs()
-                            .forEach(pr -> {
-                                MenuItem prMI = new MenuItem(pr.getTitle());
-                                prMI.addActionListener(e ->
-                                        openInBrowser(pr.getHtmlUrl().toString())
-                                );
-                                repoSM.add(prMI);
-                            });
-
+        repositoriesWithoutPRs.forEach(
+                repo -> {
+                    Menu repoSM = new Menu(repo.getName());
                     repositoriesMI.add(repoSM);
                 });
 
