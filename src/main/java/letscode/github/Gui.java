@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,50 +38,31 @@ public class Gui {
         notificationMI.addActionListener(e -> openInBrowser("https://github.com/notifications"));
 
         Menu repositoriesMI = new Menu("repositories");
-        repos
-                .forEach(repo -> {
-                    String name = repo.getPrs().size() > 0
-                            ? String.format("(%d) %s", repo.getPrs().size(), repo.getName())
-                            : repo.getName();
+        List<RepositoryDescrtiption> repositoriesWithPRs = new ArrayList<>();
+        List<RepositoryDescrtiption> repositoriesWithoutPRs = new ArrayList<>();
 
-                    Menu repoSM = new Menu(name);
-
-                    MenuItem openInBrowser = new MenuItem("Open in browser");
-                    openInBrowser.addActionListener(e ->
-                            openInBrowser(repo.getRepository().getHtmlUrl().toString())
-                    );
-
-                    repoSM.add(openInBrowser);
-
-                    if (repo.getPrs().size() > 0) {
-                        repoSM.addSeparator();
-                    }
-
-                    repo.getPrs()
-                            .forEach(pr -> {
-                                MenuItem prMI = new MenuItem(pr.getTitle());
-                                prMI.addActionListener(e ->
-                                        openInBrowser(pr.getHtmlUrl().toString())
-                                );
-                                repoSM.add(prMI);
-                            });
-
-                    repositoriesMI.add(repoSM);
-                });
-
-        int counter = 0;
-
-        for (int i = 0; i < repos.size(); i++) {
-            MenuItem item = repositoriesMI.getItem(i);
-
-            if (repos.get(i).getPrs().size() > 0) {
-                repositoriesMI.remove(item);
-                repositoriesMI.insert(item, counter);
-                counter++;
+        for (var repo : repos) {
+            if (repo.getPrs().size() == 0) {
+                repositoriesWithoutPRs.add(repo);
+            } else {
+                repositoriesWithPRs.add(repo);
             }
         }
 
-        repositoriesMI.insertSeparator(counter);
+        repositoriesWithPRs.forEach(
+                repo -> {
+                    Menu repoSM = new Menu(String.format("(%d) %s", repo.getPrs().size(), repo.getName()));
+                    repositoriesMI.add(repoSM);
+                });
+
+        repositoriesMI.addSeparator();
+
+        repositoriesWithoutPRs.forEach(
+                repo -> {
+                    Menu repoSM = new Menu(repo.getName());
+                    repositoriesMI.add(repoSM);
+                });
+
         popup.add(accountMI);
         popup.addSeparator();
         popup.add(notificationMI);
